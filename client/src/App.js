@@ -13,14 +13,15 @@ class App extends React.Component {
     idToDelete: 0,
     openUpdate: false,
     updateId: null,
+    hasChange: false,
   };
 
   componentDidMount = () => {
     this.getDataFromDB();
   };
 
-  getDataFromDB = () => {
-    axios
+  getDataFromDB = async () => {
+    await axios
       .get("/api")
       .then((response) => {
         const data = response.data;
@@ -34,29 +35,38 @@ class App extends React.Component {
 
   handleChange = ({ target }) => {
     const { name, value } = target;
-    this.setState({ [name]: value });
+    this.setState({ [name]: value, hasChange: true });
   };
 
   openUpdateForm = (num) => {
-    this.setState({ openUpdate: true, updateId: num });
+    let currentIds = this.state.dataArray.map((data) => data.id);
+    let positionOfItem = currentIds.indexOf(num);
+    let items = this.state.dataArray[positionOfItem];
+    this.setState({
+      openUpdate: true,
+      updateId: num,
+      title: items.title,
+      name: items.name,
+      body: items.body,
+    });
   };
 
-  updateDataToDB = async (event, idToUpdate) => {
-    console.log(idToUpdate);
-
+  updateDataToDB = (event, idToUpdate) => {
     event.preventDefault();
-    let objIdToUpdate = null;
-    this.state.dataArray.forEach((dat) => {
-      if (dat.id === idToUpdate) {
-        objIdToUpdate = dat._id;
+    const { title, name, body } = this.state;
+    this.state.dataArray.forEach(async (dat) => {
+      if (dat.id === idToUpdate && this.state.hasChange) {
+        await axios.post("/api/updateData", {
+          id: dat._id,
+          update: { title: title, name: name, body: body },
+        });
+        this.getDataFromDB();
+        console.log("updated");
+        this.setState({ hasChange: false });
+        this.resetUserInputs();
       }
+      this.setState({ openUpdate: false, updateId: null });
     });
-
-    await axios.post("/api/updateData", {
-      id: objIdToUpdate,
-      title: "shs",
-    });
-    this.getDataFromDB();
   };
 
   deleteFromDB = (event, idTodelete) => {
@@ -71,6 +81,7 @@ class App extends React.Component {
             id: item._id,
           },
         });
+
         this.getDataFromDB();
       }
     });
@@ -91,6 +102,8 @@ class App extends React.Component {
       body: this.state.body,
       name: this.state.name,
     };
+
+    this.setState({ hasChange: false });
 
     axios({
       url: "/api/createData",
@@ -126,18 +139,21 @@ class App extends React.Component {
           <div>
             <input
               type="text"
+              name="title"
               onChange={this.handleChange}
-              defaultValue={item.title}
+              defaultValue={this.state.title}
             />
             <input
               type="text"
+              name="name"
               onChange={this.handleChange}
-              defaultValue={item.name}
+              defaultValue={this.state.name}
             />
             <input
               type="text"
+              name="body"
               onChange={this.handleChange}
-              defaultValue={item.body}
+              defaultValue={this.state.body}
             />
             <button onClick={(event) => this.updateDataToDB(event, item.id)}>
               save
@@ -159,9 +175,7 @@ class App extends React.Component {
             <button onClick={(event) => this.deleteFromDB(event, item.id)}>
               delete
             </button>
-            <button onClick={(event) => this.openUpdateForm(item.id)}>
-              update
-            </button>
+            <button onClick={() => this.openUpdateForm(item.id)}>update</button>
           </div>
         )}
       </div>
