@@ -1,96 +1,181 @@
-import React from 'react';
-import axios from 'axios';
+import React from "react";
+import axios from "axios";
 
-
-import './App.css';
+import "./App.css";
 
 class App extends React.Component {
-
   state = {
-    title: '',
-    name: '',
-    body: '',
-    dataArray: []
+    id: 0,
+    title: "",
+    name: "",
+    body: "",
+    dataArray: [],
+    idToDelete: 0,
+    openUpdate: false,
+    updateId: null,
   };
 
   componentDidMount = () => {
-    this.getBlogPost();
+    this.getDataFromDB();
   };
 
-
-  getBlogPost = () => {
-    axios.get('/api')
+  getDataFromDB = () => {
+    axios
+      .get("/api")
       .then((response) => {
         const data = response.data;
         this.setState({ dataArray: data });
-        console.log('Data has been received!!');
+        console.log("Data has been received!!");
       })
       .catch(() => {
-        alert('Error retrieving data!!!');
+        alert("Error retrieving data!!!");
       });
-  }
+  };
 
   handleChange = ({ target }) => {
     const { name, value } = target;
     this.setState({ [name]: value });
   };
 
+  openUpdateForm = (num) => {
+    this.setState({ openUpdate: true, updateId: num });
+  };
 
-  submit = (event) => {
+  updateDataToDB = async (event, idToUpdate) => {
+    console.log(idToUpdate);
+
+    event.preventDefault();
+    let objIdToUpdate = null;
+    this.state.dataArray.forEach((dat) => {
+      if (dat.id === idToUpdate) {
+        objIdToUpdate = dat._id;
+      }
+    });
+
+    await axios.post("/api/updateData", {
+      id: objIdToUpdate,
+      title: "shs",
+    });
+    this.getDataFromDB();
+  };
+
+  deleteFromDB = (event, idTodelete) => {
     event.preventDefault();
 
+    this.state.dataArray.forEach(async (item) => {
+      if (item.id === idTodelete) {
+        console.log(item);
+        // item._id // unique id of object
+        await axios.delete("/api/deleteData", {
+          data: {
+            id: item._id,
+          },
+        });
+        this.getDataFromDB();
+      }
+    });
+  };
+
+  saveDataToDB = (event) => {
+    event.preventDefault();
+
+    let currentIds = this.state.dataArray.map((data) => data.id); //create new array with map method with id inside [1,2,3,4,5...]
+    let idToBeAdded = 0;
+    while (currentIds.includes(idToBeAdded)) {
+      ++idToBeAdded;
+    }
+
     const payload = {
+      id: idToBeAdded,
       title: this.state.title,
       body: this.state.body,
-      name: this.state.name
+      name: this.state.name,
     };
 
-
     axios({
-      url: '/api/createData',
-      method: 'POST',
-      data: payload
+      url: "/api/createData",
+      method: "POST",
+      data: payload,
     })
       .then(() => {
-        console.log('Data has been sent to the server');
+        console.log("Data has been sent to the server");
         this.resetUserInputs();
-        this.getBlogPost();
+        this.getDataFromDB();
       })
       .catch(() => {
-        console.log('Internal server error');
-      });;
+        console.log("Internal server error");
+      });
   };
 
   resetUserInputs = () => {
     this.setState({
-      title: '',
-      body: '',
-      name: ''
+      id: "",
+      title: "",
+      body: "",
+      name: "",
     });
   };
 
   displayBlogPost = (dataArray) => {
-
     if (!dataArray.length) return null;
 
-
-    return dataArray.map((post, index) => (
+    return dataArray.map((item, index) => (
       <div key={index} className="blog-post__display">
-        <h3>{post.title} - {post.name}</h3>
-        <p>{post.body}</p>
-        <button onClick={()=> console.log(index)}>delete</button>
+        <h1>{item.id}</h1>
+        {this.state.openUpdate && this.state.updateId === item.id ? (
+          <div>
+            <input
+              type="text"
+              onChange={this.handleChange}
+              defaultValue={item.title}
+            />
+            <input
+              type="text"
+              onChange={this.handleChange}
+              defaultValue={item.name}
+            />
+            <input
+              type="text"
+              onChange={this.handleChange}
+              defaultValue={item.body}
+            />
+            <button onClick={(event) => this.updateDataToDB(event, item.id)}>
+              save
+            </button>
+            <button
+              onClick={() =>
+                this.setState({ openUpdate: false, updateId: null })
+              }
+            >
+              cancel
+            </button>
+          </div>
+        ) : (
+          <div>
+            <h3>
+              {item.title} - {item.name}
+            </h3>
+            <p>{item.body}</p>
+            <button onClick={(event) => this.deleteFromDB(event, item.id)}>
+              delete
+            </button>
+            <button onClick={(event) => this.openUpdateForm(item.id)}>
+              update
+            </button>
+          </div>
+        )}
       </div>
     ));
   };
 
   render() {
     //JSX
-    return(
+    return (
       <div className="app">
         <h2>Welcome to the best app ever</h2>
-        <form onSubmit={this.submit}>
+        <form onSubmit={this.saveDataToDB}>
           <div className="form-input">
-            <input 
+            <input
               type="text"
               name="title"
               placeholder="Title"
@@ -99,7 +184,7 @@ class App extends React.Component {
             />
           </div>
           <div className="form-input">
-            <input 
+            <input
               type="text"
               name="name"
               placeholder="Name"
@@ -115,9 +200,7 @@ class App extends React.Component {
               rows="10"
               value={this.state.body}
               onChange={this.handleChange}
-            >
-              
-            </textarea>
+            ></textarea>
           </div>
 
           <button>Submit</button>
@@ -130,6 +213,5 @@ class App extends React.Component {
     );
   }
 }
-
 
 export default App;
