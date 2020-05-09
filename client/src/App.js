@@ -136,28 +136,43 @@ class App extends React.Component {
       <div key={index} className="blog-post__display">
         <h1>{item.id}</h1>
         {this.state.openUpdate && this.state.updateId === item.id ? (
-          <div>
-            <input
-              type="text"
-              name="title"
-              onChange={this.handleChange}
-              defaultValue={this.state.title}
-            />
-            <input
-              type="text"
-              name="name"
-              onChange={this.handleChange}
-              defaultValue={this.state.name}
-            />
-            <input
-              type="text"
-              name="body"
-              onChange={this.handleChange}
-              defaultValue={this.state.body}
-            />
-            <button onClick={(event) => this.updateDataToDB(event, item.id)}>
-              save
-            </button>
+          <form>
+            <div className="form-input">
+              <input
+                type="text"
+                name="title"
+                value={this.state.title}
+                onChange={this.handleChange}
+                required
+              />
+            </div>
+            <div className="form-input">
+              <input
+                type="text"
+                name="name"
+                value={this.state.name}
+                onChange={this.handleChange}
+                required
+              />
+            </div>
+            <div className="form-input">
+              <input
+                type="text"
+                name="body"
+                value={this.state.body}
+                onChange={this.handleChange}
+                required
+              />
+            </div>
+            {this.state.title.length === 0 ||
+            this.state.name.length === 0 ||
+            this.state.body.length === 0 ? (
+              <button className="disable-btn">save</button>
+            ) : (
+              <button onClick={(event) => this.updateDataToDB(event, item.id)}>
+                save
+              </button>
+            )}
             <button
               onClick={() =>
                 this.setState({ openUpdate: false, updateId: null })
@@ -165,7 +180,7 @@ class App extends React.Component {
             >
               cancel
             </button>
-          </div>
+          </form>
         ) : (
           <div>
             <h3>
@@ -195,6 +210,7 @@ class App extends React.Component {
               placeholder="Title"
               value={this.state.title}
               onChange={this.handleChange}
+              required
             />
           </div>
           <div className="form-input">
@@ -204,6 +220,7 @@ class App extends React.Component {
               placeholder="Name"
               value={this.state.name}
               onChange={this.handleChange}
+              required
             />
           </div>
           <div className="form-input">
@@ -214,6 +231,7 @@ class App extends React.Component {
               rows="10"
               value={this.state.body}
               onChange={this.handleChange}
+              required
             ></textarea>
           </div>
 
