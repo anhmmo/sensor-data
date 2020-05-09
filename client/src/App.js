@@ -10,7 +10,7 @@ class App extends React.Component {
     title: '',
     name: '',
     body: '',
-    posts: []
+    dataArray: []
   };
 
   componentDidMount = () => {
@@ -22,7 +22,7 @@ class App extends React.Component {
     axios.get('/api')
       .then((response) => {
         const data = response.data;
-        this.setState({ posts: data });
+        this.setState({ dataArray: data });
         console.log('Data has been received!!');
       })
       .catch(() => {
@@ -69,12 +69,12 @@ class App extends React.Component {
     });
   };
 
-  displayBlogPost = (posts) => {
+  displayBlogPost = (dataArray) => {
 
-    if (!posts.length) return null;
+    if (!dataArray.length) return null;
 
 
-    return posts.map((post, index) => (
+    return dataArray.map((post, index) => (
       <div key={index} className="blog-post__display">
         <h3>{post.title} - {post.name}</h3>
         <p>{post.body}</p>
@@ -124,7 +124,7 @@ class App extends React.Component {
         </form>
 
         <div className="blog-">
-          {this.displayBlogPost(this.state.posts)}
+          {this.displayBlogPost(this.state.dataArray)}
         </div>
       </div>
     );
