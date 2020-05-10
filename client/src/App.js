@@ -2,8 +2,7 @@ import React from "react";
 import axios from "axios";
 import Chart from "react-apexcharts";
 import "./App.css";
-import dotenv from "dotenv";
-dotenv.config();
+
 class App extends React.Component {
   state = {
     dataArray: [],
@@ -60,7 +59,8 @@ class App extends React.Component {
   };
 
   getDataFromSensor = () => {
-    let jwtoken = process.env.TOKEN_KEY;
+    let jwtoken =
+      "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6OCwiZW1haWwiOiJhdW5AbWV0cm9wb2xpYS5maSIsImlhdCI6MTU4ODYxMDQyM30.1z-QwqCmL3gawoxd-TPjmzk6zDkCZQqavkoUPeDulrs";
     let req = new XMLHttpRequest();
 
     req.onreadystatechange = () => {
