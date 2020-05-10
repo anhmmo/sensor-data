@@ -2,7 +2,8 @@ import React from "react";
 import axios from "axios";
 import Chart from "react-apexcharts";
 import "./App.css";
-
+import dotenv from "dotenv";
+dotenv.config();
 class App extends React.Component {
   state = {
     dataArray: [],
@@ -11,6 +12,7 @@ class App extends React.Component {
     sensor3: null,
     sensor4: null,
     dateTime: null,
+    localDateTime: null,
     options: {
       chart: {
         id: "basic-bar",
@@ -22,19 +24,19 @@ class App extends React.Component {
     series: [
       {
         name: "sensor 1",
-        data: [30],
+        data: [0],
       },
       {
         name: "sensor 2",
-        data: [10],
+        data: [0],
       },
       {
         name: "sensor 3",
-        data: [105],
+        data: [0],
       },
       {
         name: "sensor 4",
-        data: [100],
+        data: [0],
       },
     ],
   };
@@ -58,8 +60,7 @@ class App extends React.Component {
   };
 
   getDataFromSensor = () => {
-    let jwtoken =
-      "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6OCwiZW1haWwiOiJhdW5AbWV0cm9wb2xpYS5maSIsImlhdCI6MTU4ODYxMDQyM30.1z-QwqCmL3gawoxd-TPjmzk6zDkCZQqavkoUPeDulrs";
+    let jwtoken = process.env.TOKEN_KEY;
     let req = new XMLHttpRequest();
 
     req.onreadystatechange = () => {
@@ -73,8 +74,8 @@ class App extends React.Component {
     req.send();
   };
 
-  getDateTime = () => {
-    let d = new Date("2020-05-09T06:00:00.000Z");
+  getDateTime = (localTime) => {
+    let d = new Date(localTime);
     let hours = d.getHours();
     if (hours < 10) hours = "0" + hours;
     let minutes = d.getMinutes();
@@ -107,7 +108,36 @@ class App extends React.Component {
         const data = response.data;
         this.setState({ dataArray: data });
         console.log("Data has been received!!");
-        console.log(this.state.dataArray);
+        if (this.state.dataArray.length > 0) {
+          this.setState({
+            series: [
+              {
+                name: "sensor 1",
+                data: this.state.dataArray.map((data) =>
+                  parseFloat(data.sensor1).toFixed(2)
+                ),
+              },
+              {
+                name: "sensor 2",
+                data: this.state.dataArray.map((data) =>
+                  parseFloat(data.sensor2).toFixed(2)
+                ),
+              },
+              {
+                name: "sensor 3",
+                data: this.state.dataArray.map((data) =>
+                  parseFloat(data.sensor3).toFixed(2)
+                ),
+              },
+              {
+                name: "sensor 4",
+                data: this.state.dataArray.map((data) =>
+                  parseFloat(data.sensor4).toFixed(2)
+                ),
+              },
+            ],
+          });
+        }
       })
       .catch(() => {
         alert("Error retrieving data!!!");
@@ -117,6 +147,7 @@ class App extends React.Component {
   saveDataToDB = () => {
     const payload = {
       date: this.state.dateTime,
+      localDateTime: this.getDateTime(this.state.dateTime),
       sensor1: this.state.sensor1,
       sensor2: this.state.sensor2,
       sensor3: this.state.sensor3,
@@ -145,10 +176,12 @@ class App extends React.Component {
             options={this.state.options}
             series={this.state.series}
             type="line"
-            width="1000"
+            width="800"
           />
         </div>
-        <button onClick={() => this.getDataFromSensor()}>Update</button>
+        <button onClick={() => this.getDataFromSensor()}>
+          Update Manually
+        </button>
       </div>
     );
   }

@@ -3,6 +3,7 @@ const express = require("express");
 const mongoose = require("mongoose");
 const morgan = require("morgan");
 const path = require("path");
+require("dotenv").config();
 
 const app = express();
 const PORT = process.env.PORT || 8080; // Step 1
@@ -10,14 +11,10 @@ const PORT = process.env.PORT || 8080; // Step 1
 const routes = require("./routes/api");
 
 // Step 2
-mongoose.connect(
-  process.env.MONGODB_URI ||
-    "mongodb+srv://anhmmo2:ngphuong97@cluster0-c99kr.mongodb.net/opendata",
-  {
-    useNewUrlParser: true,
-    useUnifiedTopology: true,
-  }
-);
+mongoose.connect(process.env.MONGODB_URI || process.env.MONGODB_URL, {
+  useNewUrlParser: true,
+  useUnifiedTopology: true,
+});
 
 mongoose.connection.on("connected", () => {
   console.log("Mongoose is connected!!!!");

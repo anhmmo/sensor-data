@@ -5,6 +5,7 @@ const Schema = mongoose.Schema;
 const OpenSensorData = new Schema(
   {
     date: String,
+    localDateTime: String,
     sensor1: String,
     sensor2: String,
     sensor3: String,
