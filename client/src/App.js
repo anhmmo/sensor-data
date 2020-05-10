@@ -1,6 +1,6 @@
 import React from "react";
 import axios from "axios";
-
+import Chart from "react-apexcharts";
 import "./App.css";
 
 class App extends React.Component {
@@ -14,6 +14,38 @@ class App extends React.Component {
     openUpdate: false,
     updateId: null,
     hasChange: false,
+    options: {
+      chart: {
+        id: "basic-bar",
+      },
+      xaxis: {
+        categories: [
+          "12.5 9:00",
+          1992,
+          1993,
+          "10:00 12.5.2020  ",
+          1995,
+          1996,
+          1997,
+          1998,
+          1999,
+        ],
+      },
+    },
+    series: [
+      {
+        name: "sensor 1",
+        data: [30, 40, 45, 50, 49, 60, 70, 91],
+      },
+      {
+        name: "sensor 2",
+        data: [10, 30, 85, 88, null, 90, 70, 291],
+      },
+      {
+        name: "sensor 3",
+        data: [1, 20, null, null, 19, 10, 10.99, 11.66],
+      },
+    ],
   };
 
   componentDidMount = () => {
@@ -201,6 +233,14 @@ class App extends React.Component {
     //JSX
     return (
       <div className="app">
+        <div className="mixed-chart">
+          <Chart
+            options={this.state.options}
+            series={this.state.series}
+            type="line"
+            width="1000"
+          />
+        </div>
         <h2>Welcome to the best app ever</h2>
         <form onSubmit={this.saveDataToDB}>
           <div className="form-input">
