@@ -4,14 +4,11 @@ const mongoose = require("mongoose");
 const Schema = mongoose.Schema;
 const OpenSensorData = new Schema(
   {
-    id: Number,
-    title: String,
-    body: String,
-    name: String,
-    date: {
-      type: String,
-      default: Date.now(),
-    },
+    date: String,
+    sensor1: String,
+    sensor2: String,
+    sensor3: String,
+    sensor4: String,
   },
   { timestamps: true }
 );

@@ -27,20 +27,4 @@ router.post("/createData", (req, res) => {
   });
 });
 
-router.delete("/deleteData", (req, res) => {
-  const { id } = req.body;
-  SensorData.findByIdAndRemove(id, (err) => {
-    if (err) return res.send(err);
-    return res.json({ success: true });
-  });
-});
-
-router.post("/updateData", (req, res) => {
-  const { id, update } = req.body;
-  SensorData.findByIdAndUpdate(id, update, (err) => {
-    if (err) return res.json({ success: false, error: err });
-    return res.json({ success: true });
-  });
-});
-
 module.exports = router;
