@@ -38,6 +38,7 @@ class App extends React.Component {
         data: [0],
       },
     ],
+    loading: false,
   };
 
   pushDataIntoSensorData = (jsonFile) => {
@@ -55,10 +56,10 @@ class App extends React.Component {
     ) {
       this.saveDataToDB();
     }
-    console.log(this.state.dataArray);
   };
 
   getDataFromSensor = () => {
+    this.setState({ loading: true });
     let jwtoken =
       "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6OCwiZW1haWwiOiJhdW5AbWV0cm9wb2xpYS5maSIsImlhdCI6MTU4ODYxMDQyM30.1z-QwqCmL3gawoxd-TPjmzk6zDkCZQqavkoUPeDulrs";
     let req = new XMLHttpRequest();
@@ -72,6 +73,9 @@ class App extends React.Component {
     req.open("GET", "https://opendata.hopefully.works/api/events", true);
     req.setRequestHeader("Authorization", "Bearer " + jwtoken);
     req.send();
+    setTimeout(() => {
+      this.setState({ loading: false });
+    }, 1500);
   };
 
   getDateTime = (localTime) => {
@@ -102,12 +106,13 @@ class App extends React.Component {
   };
 
   getDataFromDB = async () => {
+    this.setState({ loading: true });
     await axios
       .get("/api")
       .then((response) => {
         const data = response.data;
         this.setState({ dataArray: data });
-        console.log("Data has been received!!");
+
         if (this.state.dataArray.length > 0) {
           this.setState({
             options: {
@@ -123,27 +128,19 @@ class App extends React.Component {
             series: [
               {
                 name: "sensor 1",
-                data: this.state.dataArray.map((data) =>
-                  parseFloat(data.sensor1).toFixed(2)
-                ),
+                data: this.state.dataArray.map((data) => data.sensor1),
               },
               {
                 name: "sensor 2",
-                data: this.state.dataArray.map((data) =>
-                  parseFloat(data.sensor2).toFixed(2)
-                ),
+                data: this.state.dataArray.map((data) => data.sensor2),
               },
               {
                 name: "sensor 3",
-                data: this.state.dataArray.map((data) =>
-                  parseFloat(data.sensor3).toFixed(2)
-                ),
+                data: this.state.dataArray.map((data) => data.sensor3),
               },
               {
                 name: "sensor 4",
-                data: this.state.dataArray.map((data) =>
-                  parseFloat(data.sensor4).toFixed(2)
-                ),
+                data: this.state.dataArray.map((data) => data.sensor4),
               },
             ],
           });
@@ -152,6 +149,9 @@ class App extends React.Component {
       .catch(() => {
         alert("Error retrieving data!!!");
       });
+    setTimeout(() => {
+      this.setState({ loading: false });
+    }, 1500);
   };
 
   saveDataToDB = () => {
@@ -169,7 +169,6 @@ class App extends React.Component {
       data: payload,
     })
       .then(() => {
-        console.log("Data has been sent to the server");
         this.getDataFromDB();
       })
       .catch(() => {
@@ -181,17 +180,42 @@ class App extends React.Component {
     //JSX
     return (
       <div className="app">
-        <div className="mixed-chart">
+        {this.state.loading ? <i className="fas fa-spinner"></i> : ""}
+        <div className="text-content">
+          <h1>Open Data visualization</h1>
+
+          <p>
+            This is an app that, when running, fetched a new data point from an
+            API provided by hopefully.works, saves it to a database and
+            visualizes the data on a chart. The backend is built with Node.js +
+            Express and it uses a MongoDB database. The frontend is a React app.
+            The app is deployed to Heroku. Please note that the heroku app goes
+            idle after 30 minutes of inactivity
+          </p>
+        </div>
+        <div className="button-box">
+          <button
+            className="update-btn"
+            onClick={() => this.getDataFromSensor()}
+          >
+            Update Data Manually
+          </button>
+          <button className="update-btn" onClick={() => this.getDataFromDB()}>
+            Update chart
+          </button>
+        </div>
+        <div
+          className={
+            this.state.loading ? "mixed-chart hide-chart" : "mixed-chart"
+          }
+        >
           <Chart
             options={this.state.options}
             series={this.state.series}
             type="line"
-            width="800"
+            width="100%"
           />
         </div>
-        <button onClick={() => this.getDataFromSensor()}>
-          Update Manually
-        </button>
       </div>
     );
   }
