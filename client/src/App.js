@@ -110,6 +110,16 @@ class App extends React.Component {
         console.log("Data has been received!!");
         if (this.state.dataArray.length > 0) {
           this.setState({
+            options: {
+              chart: {
+                id: "basic-bar",
+              },
+              xaxis: {
+                categories: this.state.dataArray.map(
+                  (data) => data.localDateTime
+                ),
+              },
+            },
             series: [
               {
                 name: "sensor 1",
