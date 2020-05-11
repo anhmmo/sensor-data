@@ -1,3 +1,4 @@
+.env
+
 # No modules
 node_modules
-.env
