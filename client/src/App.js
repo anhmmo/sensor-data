@@ -17,7 +17,7 @@ class App extends React.Component {
         id: "basic-bar",
       },
       xaxis: {
-        categories: ["12.5 9:00"],
+        categories: [""],
       },
     },
     series: [
@@ -60,8 +60,7 @@ class App extends React.Component {
 
   getDataFromSensor = () => {
     this.setState({ loading: true });
-    let jwtoken =
-      "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6OCwiZW1haWwiOiJhdW5AbWV0cm9wb2xpYS5maSIsImlhdCI6MTU4ODYxMDQyM30.1z-QwqCmL3gawoxd-TPjmzk6zDkCZQqavkoUPeDulrs";
+    let jwtoken = process.env.TOKEN_KEY;
     let req = new XMLHttpRequest();
 
     req.onreadystatechange = () => {
@@ -70,7 +69,7 @@ class App extends React.Component {
       }
     };
 
-    req.open("GET", "https://opendata.hopefully.works/api/events", true);
+    req.open("GET", process.env.SITE_ADDRESS, true);
     req.setRequestHeader("Authorization", "Bearer " + jwtoken);
     req.send();
     setTimeout(() => {
